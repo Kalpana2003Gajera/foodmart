@@ -5,5 +5,114 @@ Contact
 {% endblock %}
 
 {% block body %}
-Contact page
+<section class="relative bg-gradient-to-br from-yellow-50 via-white to-yellow-100 py-24">
+  <div class="container mx-auto px-6">
+
+    <!-- Section Header -->
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900">
+        Get in <span class="text-yellow-500">Touch With Us</span>
+      </h2>
+      <p class="mt-4 max-w-2xl mx-auto text-gray-600">
+        Have questions about our food kits, bulk orders, or custom requirements?
+        We’re here to help you with quick and friendly support.
+      </p>
+    </div>
+
+    <!-- Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+      <!-- Map + Contact Info -->
+      <div class="lg:col-span-2 relative rounded-2xl overflow-hidden shadow-lg">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d929.7701378939104!2d72.89665575879086!3d21.228654151796732!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be04fc9062817df%3A0x7c31f4188a15871a!2sBIT%20Surat%20Nana%20Varachha!5e0!3m2!1sen!2sin!4v1767781452265!5m2!1sen!2sin" class="w-full h-[420px] grayscale contrast-125 opacity-80"  style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" frameborder="0" scrolling="no"
+          marginheight="0" marginwidth="0" ></iframe>
+
+        <!-- Info Card -->
+        <div
+          class="absolute bottom-6 left-6 right-6 bg-white rounded-xl shadow-md p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <h3 class="text-xs font-semibold tracking-widest text-gray-900 mb-1">ADDRESS</h3>
+            <p class="text-sm text-gray-600">
+              Gujarat, India – PAN India Delivery Available
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-semibold tracking-widest text-gray-900 mb-1">EMAIL</h3>
+            <p class="text-sm text-yellow-600">
+              foodmart@.com
+            </p>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-semibold tracking-widest text-gray-900 mb-1">PHONE</h3>
+            <p class="text-sm text-gray-600">
+              +91 89801 45007
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="bg-white rounded-2xl shadow-lg p-8">
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">
+          Send Us a Message
+        </h3>
+        <p class="text-sm text-gray-600 mb-6">
+          Fill out the form and our team will contact you shortly.
+        </p>
+
+        <!-- start message section -->
+        {% if messages %}
+        {% for message in messages %}
+        <div
+          class="p-4 mb-4 rounded-lg text-white flex items-center justify-between {% if message.tags == 'error' %}bg-red-500{% elif message.tags == 'warning' %}bg-yellow-400{% elif message.tags == 'success' %}bg-green-500{% elif message.tags == 'info' %}bg-blue-400{% endif %}"
+          role="alert">
+          <p>{{ message }}</p>
+          <button type="button" class="ml-4 px-2 py-1 rounded bg-gray-800 text-white hover:bg-gray-700"
+            onclick="this.parentElement.remove();" aria-label="Close">
+            &times;
+          </button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        <!-- end message section -->
+
+        <form method="post" action="{% url 'contact' %}">
+          {% csrf_token %}
+
+          <div class="mb-4">
+            <label class="block text-sm text-gray-600 mb-1">Fullname</label>
+            <input type="text" name="fullname"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 outline-none">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm text-gray-600 mb-1">Email</label>
+            <input type="email" name="email"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 outline-none">
+          </div>
+
+          <div class="mb-5">
+            <label class="block text-sm text-gray-600 mb-1">Message</label>
+            <textarea name="message" rows="4"
+              class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 outline-none"></textarea>
+          </div>
+
+          <button type="submit"
+            class="w-full bg-yellow-500 text-white py-3 rounded-lg font-medium hover:bg-yellow-600 transition">
+            Send Message
+          </button>
+
+          <p class="text-xs text-gray-500 mt-3 text-center">
+            We respect your privacy. Your information is safe with us.
+          </p>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
 {% endblock %}
