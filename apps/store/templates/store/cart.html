@@ -1,0 +1,282 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Cart{% endblock %}
+
+{% block body %}
+<div class="max-w-7xl mx-auto px-6 py-24">
+
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">
+        Shopping Cart
+    </h1>
+
+    {% if cart_items %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+        <!-- ================= CART ITEMS ================= -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="flex items-center gap-2 my-4 ">
+                <input type="checkbox" id="select-all" class="w-5 h-5 cursor-pointer">
+                <span class="text-sm text-gray-600 font-medium">
+                    Select All Items
+                </span>
+            </div>
+
+            {% for item in cart_items %}
+            <div class="flex items-center gap-6 border rounded-xl p-5 bg-white">
+
+                <!-- Select Checkbox -->
+                <div>
+                    <input type="checkbox"
+                           class="cart-checkbox w-5 h-5 text-green-600 border-gray-300 rounded cursor-pointer"
+                           value="{{ item.id }}"
+                           data-price="{{ item.total_price }}">
+                </div>
+
+                <!-- Product Image -->
+                <img src="{{ item.product.primary_image }}" alt="{{ item.product.name }}"
+                     class="w-24 h-24 object-contain rounded-lg border">
+
+                <!-- Product Info -->
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900">
+                        {{ item.product.name }}
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                        Weight: {{ item.product.weight }}
+                    </p>
+                    <p class="text-green-600 font-semibold mt-1">
+                        ₹ {{ item.product.price }}
+                    </p>
+                </div>
+
+                <!-- Quantity -->
+                <div class="flex items-center gap-2">
+                    <a href="{% url 'cart_decrease' item.id %}" class="px-3 py-1 border rounded hover:bg-gray-100">−</a>
+                    <span class="px-4 py-1 border rounded">
+                        {{ item.qty }}
+                    </span>
+                    <a href="{% url 'cart_increase' item.id %}" class="px-3 py-1 border rounded hover:bg-gray-100">+</a>
+                </div>
+
+                <!-- Price -->
+                <div class="w-24 text-right font-semibold">
+                    ₹ {{ item.total_price }}
+                </div>
+
+                <!-- Remove -->
+                <a href="{% url 'cart_remove' item.id %}" class="text-red-500 hover:text-red-700">
+                    <i class="fa-solid fa-trash"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- ================= CART SUMMARY ================= -->
+        <div class="border rounded-xl p-6 bg-white h-fit">
+
+            <h2 class="text-xl font-semibold mb-4">
+                Order Summary
+            </h2>
+
+            <!-- ================= SELECT ADDRESS ================= -->
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold mb-2">Select Delivery Address</h3>
+                
+                {% if addresses %}
+                <div class="space-y-2">
+                    {% for address in addresses %}
+                    <label class="flex items-start gap-2 border rounded p-3 cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="address" value="{{ address.id }}" {% if address.is_primary %}checked{% endif %}
+                               class="address-radio w-4 h-4 mt-1 text-green-600">
+                        <div>
+                            <p class="font-medium">{{ address.full_name }} - {{ address.phone }}</p>
+                            <p class="text-sm text-gray-600">
+                                {{ address.address_line1 }}{% if address.address_line2 %}, {{ address.address_line2 }}{% endif %}, 
+                                {{ address.city }}, {{ address.state }} - {{ address.pincode }}
+                                {% if address.is_primary %}<span class="text-green-600 font-semibold">(Primary)</span>{% endif %}
+                            </p>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500">No addresses found. Please add an address in your profile before placing an order.</p>
+                {% endif %}
+            </div>
+
+            <!-- Selected Subtotal -->
+            <div class="flex justify-between text-sm mb-3">
+                <span>Selected Subtotal</span>
+                <span>₹ <span id="selected-subtotal">0</span></span>
+            </div>
+
+            <!-- Shipping -->
+            <div class="flex justify-between text-sm mb-3">
+                <span>Shipping</span>
+                <span id="shipping-amount" class="text-green-600">₹ 0</span>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Final Total -->
+            <div class="flex justify-between text-lg font-bold mb-6">
+                <span>Total</span>
+                <span>₹ <span id="final-total">0</span></span>
+            </div>
+
+            <a href="#" id="checkout-btn"
+               class="block text-center bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition opacity-50 pointer-events-none">
+                Place Order
+            </a>
+
+            <a href="{% url 'products' %}" class="block text-center mt-4 text-sm text-gray-600 hover:underline">
+                Continue Shopping
+            </a>
+        </div>
+
+    </div>
+
+    {% else %}
+    <!-- ================= EMPTY CART ================= -->
+    <div class="text-center py-20">
+        <i class="fa-solid fa-cart-shopping text-5xl text-gray-300 mb-6"></i>
+        <h2 class="text-2xl font-semibold text-gray-700 mb-2">
+            Your cart is empty
+        </h2>
+        <p class="text-gray-500 mb-6">
+            Looks like you haven’t added anything yet
+        </p>
+        <a href="{% url 'products' %}"
+           class="inline-block bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition">
+            Start Shopping
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const selectAll = document.getElementById("select-all");
+    const checkboxes = document.querySelectorAll(".cart-checkbox");
+
+    const subtotalSpan = document.getElementById("selected-subtotal");
+    const shippingSpan = document.getElementById("shipping-amount");
+    const finalTotalSpan = document.getElementById("final-total");
+
+    const checkoutBtn = document.getElementById("checkout-btn");
+
+    function calculateSelectedTotal() {
+        let subtotal = 0;
+        let anyChecked = false;
+
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                subtotal += parseFloat(checkbox.dataset.price) || 0;
+                anyChecked = true;
+            }
+        });
+
+        let shipping = 0;
+        if (anyChecked && subtotal < 1000) {
+            shipping = 100;
+            shippingSpan.textContent = "₹ 100";
+            shippingSpan.classList.remove("text-green-600");
+            shippingSpan.classList.add("text-red-500");
+        } else if (anyChecked && subtotal >= 1000) {
+            shipping = 0;
+            shippingSpan.textContent = "Free";
+            shippingSpan.classList.remove("text-red-500");
+            shippingSpan.classList.add("text-green-600");
+        } else {
+            shipping = 0;
+            shippingSpan.textContent = "₹ 0";
+            shippingSpan.classList.remove("text-red-500");
+            shippingSpan.classList.add("text-green-600");
+        }
+
+        let finalTotal = subtotal + shipping;
+        subtotalSpan.textContent = subtotal.toFixed(2);
+        finalTotalSpan.textContent = finalTotal.toFixed(2);
+
+        if (anyChecked) {
+            checkoutBtn.classList.remove("opacity-50", "pointer-events-none");
+        } else {
+            checkoutBtn.classList.add("opacity-50", "pointer-events-none");
+        }
+    }
+
+    selectAll.addEventListener("change", function () {
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        calculateSelectedTotal();
+    });
+
+    checkboxes.forEach(function (checkbox) {
+        checkbox.addEventListener("change", function () {
+            selectAll.checked = [...checkboxes].every(cb => cb.checked);
+            calculateSelectedTotal();
+        });
+    });
+
+    checkoutBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+
+        let selectedIds = [];
+        let subtotal = 0;
+
+        checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) {
+                selectedIds.push(checkbox.value);
+                subtotal += parseFloat(checkbox.dataset.price) || 0;
+            }
+        });
+
+        if (selectedIds.length === 0) {
+            alert("Please select at least one item.");
+            return;
+        }
+
+        // ✅ Get selected address
+        let addressRadio = document.querySelector("input[name='address']:checked");
+        if (!addressRadio) {
+            alert("Please select a delivery address.");
+            return;
+        }
+        let address_id = addressRadio.value;
+
+        let shipping = subtotal < 1000 ? 100 : 0;
+        let totalAmount = subtotal + shipping;
+
+        fetch("{% url 'place_order' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                item_ids: selectedIds,
+                subtotal: subtotal.toFixed(2),
+                shipping: shipping.toFixed(2),
+                total_amount: totalAmount.toFixed(2),
+                address_id: address_id
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = "/order-success/" + data.order_id + "/";
+            } else {
+                alert(data.error || "Order failed!");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Something went wrong. Please try again.");
+        });
+    });
+
+});
+</script>
+
+{% endblock %}
